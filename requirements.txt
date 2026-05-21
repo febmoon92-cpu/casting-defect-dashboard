@@ -3,9 +3,11 @@
 #
 # - PyTorch CPU 휠을 명시 (--extra-index-url)
 # - 상한 핀은 제거: Cloud의 Python 버전(3.11/3.12/3.13)에 맞춰 resolver가
-#   자동으로 호환 휠을 선택하도록 한다.
-# - opencv는 headless 버전만 명시. grad-cam 이 비-headless opencv 를
-#   transitive 로 끌어올 수 있으나, packages.txt 의 libgl1 으로 보호.
+#   호환 휠을 자동 선택하도록 둔다.
+# - opencv / grad-cam 패키지는 사용하지 않는다.
+#   Grad-CAM 알고리즘은 src/gradcam.py 에 PyTorch hooks + matplotlib
+#   colormap 만으로 자체 구현되어 있어, libGL 등 시스템 라이브러리에
+#   대한 의존이 전혀 없다.
 # =====================================================================
 
 --extra-index-url https://download.pytorch.org/whl/cpu
@@ -14,19 +16,13 @@
 torch>=2.5,<2.7
 torchvision>=0.20,<0.22
 
-# Core scientific stack — 하한만, Cloud Python 에 맞춰 최신 휠 자동 선택
+# Core scientific stack
 numpy>=1.26
 pandas>=2.1
 scipy>=1.13
 scikit-learn>=1.5
 pillow>=10.0
 tqdm>=4.66
-
-# Headless OpenCV (서버용, libGL 없이도 import 가능)
-opencv-python-headless>=4.10
-
-# Grad-CAM
-grad-cam>=1.5
 
 # Visualization
 plotly>=5.20

@@ -14,13 +14,11 @@ import numpy as np
 import pandas as pd
 import torch
 from PIL import Image
-from pytorch_grad_cam import GradCAM
-from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 from torchvision import transforms
 from tqdm import tqdm
 
 from . import config
-from .gradcam import load_model_for_cam
+from .gradcam import ClassifierOutputTarget, GradCAM, load_model_for_cam
 from .models import get_target_layer_for
 from .utils import get_device
 
@@ -89,8 +87,7 @@ def run_cam_analysis(
     counts = {g: 0 for g in mean_cam}
     rows: list[dict] = []
 
-    cam_ctx = GradCAM(model=model, target_layers=[target_layer])
-    try:
+    with GradCAM(model=model, target_layers=[target_layer]) as cam_ctx:
         for _, r in tqdm(preds.iterrows(), total=len(preds), desc="cam"):
             path = r["path"]
             label = int(r["label"])
@@ -125,11 +122,6 @@ def run_cam_analysis(
                 "cam_centroid_y": float((np.arange(img_size)[:, None] * cam).sum() / max(cam.sum(), 1e-9)),
                 "cam_centroid_x": float((np.arange(img_size)[None, :] * cam).sum() / max(cam.sum(), 1e-9)),
             })
-    finally:
-        try:
-            cam_ctx.__exit__(None, None, None)
-        except Exception:
-            pass
 
     for g in mean_cam:
         if counts[g] > 0:
