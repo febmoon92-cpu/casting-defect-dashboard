@@ -154,7 +154,7 @@ streamlit run streamlit_app.py
 |------|------|
 | 엔트리 파일 | `streamlit_app.py` (루트, 자동 인식) |
 | 의존성 | `requirements.txt` (CPU PyTorch 2.5.1 휠 사용) |
-| OS 패키지 | `packages.txt` (`libgl1`, `libglib2.0-0` — grad-cam이 끌어오는 opencv 보호용) |
+| OS 패키지 | `packages.txt` (`libgl1` 만 — grad-cam이 끌어오는 non-headless cv2 보호용) |
 | Streamlit 설정 | `.streamlit/config.toml` |
 | Python 버전 | **3.11 고정** (`runtime.txt` 명시 + Advanced settings 에서 선택 권장) |
 
@@ -177,6 +177,7 @@ streamlit run streamlit_app.py
 |------|------|
 | `ERROR: Could not find a version that satisfies the requirement torch==X` | Cloud Python 버전과 휠 호환 안 됨. → Advanced settings 에서 Python **3.11** 로 다시 배포. |
 | `ImportError: libGL.so.1: cannot open shared object file` | `opencv-python`(non-headless)이 함께 설치된 경우. → `packages.txt` 에 `libgl1` 추가 (본 저장소 포함됨). |
+| `libglib2.0-0 ... Depends libffi7 but not installable` | Cloud의 base OS가 Debian trixie 인데 `libglib2.0-0` 을 bullseye 버전으로 끌어오면서 충돌. → `packages.txt` 에서 `libglib2.0-0` 를 **요청하지 말 것**. 해당 라이브러리는 base image 에 이미 존재합니다. |
 | 빌드가 매우 느리거나 OOM | Free tier 자원 부족. → 사용하지 않는 모델 가중치를 `models/` 에서 제거하고 `app/streamlit_app.py` 의 `CHECKPOINTS` 딕셔너리도 정리. |
 | `ResolutionImpossible` (numpy 등) | 의존성 충돌. → `pip install -r requirements.txt` 를 로컬 Python 3.11 에서 먼저 검증한 뒤 push. |
 
