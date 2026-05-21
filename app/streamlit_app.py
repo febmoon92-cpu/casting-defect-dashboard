@@ -105,6 +105,48 @@ CHECKPOINTS = {
 }
 
 
+# ----------- image path resolution -----------
+#
+# Prediction CSVs were generated locally and store absolute Windows paths
+# under data/raw/, which do not exist on Streamlit Cloud (the raw Kaggle
+# dataset is excluded from git). We fall back to:
+#   1. The original recorded path (works on the original machine).
+#   2. reports/sample_images/<basename>  (curated demo set, committed).
+#   3. data/raw/  recursive search by basename (works after a local
+#      `python -m src.download`).
+# If all three miss, the caller renders a small placeholder card with the
+# row's metadata so the dashboard remains useful.
+
+SAMPLE_IMAGES_DIR = config.REPORTS_DIR / "sample_images"
+
+
+@st.cache_data
+def _data_raw_index() -> dict[str, str]:
+    """Index basename -> absolute path for any image under data/raw/.
+
+    Cached so the recursive scan happens at most once per session.
+    Returns an empty dict on Streamlit Cloud where data/raw is absent.
+    """
+    raw = config.RAW_DIR
+    if not raw.exists():
+        return {}
+    return {p.name: str(p) for p in raw.rglob("*.jp*g")}
+
+
+def _resolve_image_path(path: str | Path) -> Path | None:
+    p = Path(str(path))
+    if p.exists():
+        return p
+    sample = SAMPLE_IMAGES_DIR / p.name
+    if sample.exists():
+        return sample
+    idx = _data_raw_index()
+    hit = idx.get(p.name)
+    if hit:
+        return Path(hit)
+    return None
+
+
 # ----------- tab 1: experiments -----------
 
 
@@ -288,17 +330,31 @@ def tab_cam_analysis() -> None:
 
 def _show_with_cam(path: Path, model, device, caption_prefix: str = "") -> None:
     cols = st.columns([1, 1])
+    resolved = _resolve_image_path(path)
+    if resolved is None:
+        with cols[0]:
+            st.info(
+                f"이미지 미포함 (배포 환경): `{Path(str(path)).name}`\n\n"
+                "원본 파일은 `data/raw/` 가 있는 로컬 환경에서만 표시됩니다. "
+                "데모용 컨센서스 오분류 케이스는 `reports/sample_images/` 에 미리 "
+                "포함되어 있어 그쪽 항목은 정상적으로 보입니다."
+            )
+        return
     try:
-        with Image.open(path) as im:
+        with Image.open(resolved) as im:
             img = im.convert("RGB")
         with cols[0]:
-            st.image(img, caption=f"{caption_prefix}{path.parent.name}/{path.name}", use_container_width=True)
-        overlay, prob, pred = overlay_for_image(model, path, device, target_class=1)
+            st.image(
+                img,
+                caption=f"{caption_prefix}{resolved.parent.name}/{resolved.name}",
+                use_container_width=True,
+            )
+        overlay, prob, pred = overlay_for_image(model, resolved, device, target_class=1)
         with cols[1]:
             st.image(overlay, caption=f"Grad-CAM | prob_def={prob:.3f}", use_container_width=True)
     except Exception as e:  # pragma: no cover
         with cols[0]:
-            st.error(f"Failed for {path}: {e}")
+            st.error(f"Failed for {resolved}: {e}")
 
 
 def tab_misclassification() -> None:
