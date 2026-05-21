@@ -153,10 +153,10 @@ streamlit run streamlit_app.py
 | 항목 | 내용 |
 |------|------|
 | 엔트리 파일 | `streamlit_app.py` (루트, 자동 인식) |
-| 의존성 | `requirements.txt` (CPU PyTorch 휠 사용) |
-| OS 패키지 | 없음 (opencv-**headless** 사용으로 libGL 불필요) |
+| 의존성 | `requirements.txt` (CPU PyTorch 2.5.1 휠 사용) |
+| OS 패키지 | `packages.txt` (`libgl1`, `libglib2.0-0` — grad-cam이 끌어오는 opencv 보호용) |
 | Streamlit 설정 | `.streamlit/config.toml` |
-| Python 버전 | 3.11 권장 (Cloud 기본값) |
+| Python 버전 | **3.11 고정** (`runtime.txt` 명시 + Advanced settings 에서 선택 권장) |
 
 ### 배포 절차
 
@@ -166,7 +166,19 @@ streamlit run streamlit_app.py
    - **Repository**: `<your_username>/casting-defect-dashboard`
    - **Branch**: `main`
    - **Main file path**: `streamlit_app.py`
-4. **Deploy** 클릭 → 첫 빌드는 PyTorch 설치 때문에 5–10분 소요.
+4. **Advanced settings → Python version 을 `3.11` 로 선택** (★중요).
+   - Streamlit Cloud의 기본 Python 은 3.13 인데, 일부 ML 휠이 3.13 을 늦게 지원하므로 3.11이 가장 안정적.
+   - 저장소 루트의 `runtime.txt`(`python-3.11`)는 보조 안전장치이며, Advanced settings 선택이 우선합니다.
+5. **Deploy** 클릭 → 첫 빌드는 PyTorch + grad-cam 설치 때문에 5–10분 소요.
+
+### 트러블슈팅: "Error installing requirements"
+
+| 증상 | 원인 / 해결 |
+|------|------|
+| `ERROR: Could not find a version that satisfies the requirement torch==X` | Cloud Python 버전과 휠 호환 안 됨. → Advanced settings 에서 Python **3.11** 로 다시 배포. |
+| `ImportError: libGL.so.1: cannot open shared object file` | `opencv-python`(non-headless)이 함께 설치된 경우. → `packages.txt` 에 `libgl1` 추가 (본 저장소 포함됨). |
+| 빌드가 매우 느리거나 OOM | Free tier 자원 부족. → 사용하지 않는 모델 가중치를 `models/` 에서 제거하고 `app/streamlit_app.py` 의 `CHECKPOINTS` 딕셔너리도 정리. |
+| `ResolutionImpossible` (numpy 등) | 의존성 충돌. → `pip install -r requirements.txt` 를 로컬 Python 3.11 에서 먼저 검증한 뒤 push. |
 
 ### 메모리 / 자원 관련 주의
 
