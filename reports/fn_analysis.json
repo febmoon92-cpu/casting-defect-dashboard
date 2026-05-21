@@ -1,0 +1,51 @@
+{
+  "threshold": 0.5,
+  "per_model": {
+    "baseline": {
+      "FN_close": 29,
+      "FN_large": 38,
+      "FP_close": 0,
+      "FP_large": 0
+    },
+    "efficientnet_b0": {
+      "FN_close": 0,
+      "FN_large": 2,
+      "FP_close": 0,
+      "FP_large": 0
+    },
+    "resnet18_focal": {
+      "FN_close": 2,
+      "FN_large": 0,
+      "FP_close": 0,
+      "FP_large": 0
+    },
+    "resnet18": {
+      "FN_close": 1,
+      "FN_large": 1,
+      "FP_close": 0,
+      "FP_large": 0
+    },
+    "resnet18_tta": {
+      "FN_close": 1,
+      "FN_large": 1,
+      "FP_close": 0,
+      "FP_large": 0
+    }
+  },
+  "consensus_min2": [
+    {
+      "path": "C:\\Users\\User\\Documents\\MyProject\\Newworld\\data\\raw\\casting_data\\casting_data\\test\\def_front\\cast_def_0_150.jpeg",
+      "label": 1,
+      "miss_count": 5,
+      "mean_prob_defect": 0.2397904202342033,
+      "models_missed": "baseline,efficientnet_b0,resnet18_focal,resnet18,resnet18_tta"
+    },
+    {
+      "path": "C:\\Users\\User\\Documents\\MyProject\\Newworld\\data\\raw\\casting_data\\casting_data\\test\\def_front\\cast_def_0_1591.jpeg",
+      "label": 1,
+      "miss_count": 5,
+      "mean_prob_defect": 0.2880180612206459,
+      "models_missed": "baseline,efficientnet_b0,resnet18_focal,resnet18,resnet18_tta"
+    }
+  ]
+}

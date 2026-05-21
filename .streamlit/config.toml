@@ -1,0 +1,23 @@
+# Streamlit configuration for Cloud deployment
+# 참고: secrets.toml 은 절대 커밋하지 말 것 (.gitignore 처리됨)
+
+[theme]
+base = "light"
+primaryColor = "#0F62FE"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F4F4F4"
+textColor = "#161616"
+font = "sans serif"
+
+[server]
+headless = true
+runOnSave = false
+fileWatcherType = "none"
+maxUploadSize = 25  # MB; live inference 업로드 상한
+
+[browser]
+gatherUsageStats = false
+
+[client]
+showErrorDetails = true
+toolbarMode = "minimal"

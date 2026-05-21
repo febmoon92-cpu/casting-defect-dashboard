@@ -1,0 +1,21 @@
+# =====================================================================
+# 로컬 개발/학습 환경 (GPU 학습, EDA, Kaggle 데이터 다운로드)
+# Streamlit Cloud 배포에는 사용되지 않습니다.
+#
+# CUDA 11.8 GPU 사용 시 torch/torchvision은 별도 설치 필요:
+#   pip install torch==2.4.1 torchvision==0.19.1 \
+#       --index-url https://download.pytorch.org/whl/cu118
+# 그 다음:
+#   pip install -r requirements-dev.txt
+# =====================================================================
+
+# Base 의존성은 requirements.txt 와 동일하게 포함
+-r requirements.txt
+
+# Kaggle 데이터셋 다운로드
+kaggle>=1.6
+python-dotenv>=1.0
+
+# 노트북 / EDA
+jupyter>=1.0
+ipykernel>=6.29

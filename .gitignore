@@ -1,0 +1,47 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.Python
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+
+# --- IDE / editor ---
+.vscode/
+.idea/
+*.swp
+.ipynb_checkpoints/
+
+# --- Secrets / credentials ---
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+.kaggle/
+kaggle.json
+
+# --- Raw data (Kaggle 원본은 git에 포함하지 않음) ---
+data/raw/
+data/processed/
+*.zip
+*.tar.gz
+
+# --- Streamlit ---
+.streamlit/secrets.toml
+
+# --- 대용량 / 임시 결과물 ---
+# 학습 로그(텍스트)와 임시 캐시 파일만 제외하고,
+# 모델 가중치(*.pt)와 cam_analysis/* 는 대시보드 데모에 필요하므로 포함합니다.
+models/*.log
+reports/_live_tmp.*
+reports/misclassified/
+
+# --- OS ---
+Thumbs.db
+.DS_Store
+desktop.ini
