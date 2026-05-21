@@ -7,7 +7,6 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from dotenv import load_dotenv
 
 from . import config
 
@@ -25,7 +24,21 @@ def get_device() -> torch.device:
 
 
 def load_kaggle_env() -> tuple[str, str]:
-    """Load Kaggle credentials from .env and expose them as KAGGLE_USERNAME/KAGGLE_KEY."""
+    """Load Kaggle credentials from .env and expose them as KAGGLE_USERNAME/KAGGLE_KEY.
+
+    `python-dotenv` 는 로컬 개발 전용 의존성(requirements-dev.txt) 이므로
+    Streamlit Cloud 배포 환경에는 설치되지 않는다. 따라서 import 를 함수
+    내부로 지연시켜, Kaggle 다운로드 기능을 호출하지 않는 한 ImportError 가
+    발생하지 않도록 한다.
+    """
+    try:
+        from dotenv import load_dotenv  # type: ignore
+    except ImportError as exc:  # pragma: no cover - prod path
+        raise RuntimeError(
+            "python-dotenv 가 설치돼 있지 않습니다. 로컬에서 Kaggle 다운로드를 "
+            "실행하려면 `pip install -r requirements-dev.txt` 로 의존성을 설치하세요."
+        ) from exc
+
     load_dotenv(config.ROOT_DIR / ".env")
     username = os.environ.get("KAGGLE_USERNAME")
     token = os.environ.get("KAGGLE_API_TOKEN") or os.environ.get("KAGGLE_KEY")
