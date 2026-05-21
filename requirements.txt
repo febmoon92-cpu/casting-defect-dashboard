@@ -1,35 +1,37 @@
 # =====================================================================
 # Casting Defect Dashboard - Streamlit Cloud용 dependencies (CPU only)
 #
-# Streamlit Community Cloud는 CPU 인스턴스이므로 PyTorch CPU 휠을 사용합니다.
-# Python 3.11 환경에서 검증됨 (Cloud Advanced settings 에서 3.11 선택 권장).
-# 로컬 GPU 학습/평가용 패키지(kaggle, jupyter 등)는 requirements-dev.txt 참고.
+# - PyTorch CPU 휠을 명시 (--extra-index-url)
+# - 상한 핀은 제거: Cloud의 Python 버전(3.11/3.12/3.13)에 맞춰 resolver가
+#   자동으로 호환 휠을 선택하도록 한다.
+# - opencv는 headless 버전만 명시. grad-cam 이 비-headless opencv 를
+#   transitive 로 끌어올 수 있으나, packages.txt 의 libgl1 으로 보호.
 # =====================================================================
 
 --extra-index-url https://download.pytorch.org/whl/cpu
 
-# Deep learning (CPU wheels). 2.5.1 은 Python 3.9~3.13 모두 CPU 휠 제공.
-torch==2.5.1
-torchvision==0.20.1
+# Deep learning (CPU wheels). 2.5.x 는 Python 3.9~3.13 모두 휠 제공.
+torch>=2.5,<2.7
+torchvision>=0.20,<0.22
 
-# Core scientific stack (numpy 2.x 는 의도적으로 미허용 — opencv/seaborn 일부 휠 호환 안정성)
-numpy>=1.26,<2.2
-pandas>=2.1,<2.3
-scipy>=1.11,<1.15
-scikit-learn>=1.4,<1.6
-pillow>=10.0,<11.0
+# Core scientific stack — 하한만, Cloud Python 에 맞춰 최신 휠 자동 선택
+numpy>=1.26
+pandas>=2.1
+scipy>=1.13
+scikit-learn>=1.5
+pillow>=10.0
 tqdm>=4.66
 
-# Headless OpenCV (서버용, system libGL 의존 없음). grad-cam이 cv2 사용.
-opencv-python-headless>=4.9,<4.11
+# Headless OpenCV (서버용, libGL 없이도 import 가능)
+opencv-python-headless>=4.10
 
 # Grad-CAM
-grad-cam==1.5.4
+grad-cam>=1.5
 
 # Visualization
-plotly>=5.20,<6.0
-matplotlib>=3.8,<3.10
+plotly>=5.20
+matplotlib>=3.8
 seaborn>=0.13
 
 # Dashboard
-streamlit>=1.36,<2.0
+streamlit>=1.36
